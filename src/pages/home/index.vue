@@ -113,23 +113,15 @@ export default {
   },
 
   created () {
-    var http_obj = {}
-    wx.request({
-      //仅为示例，并非真实的接口地址
-      url: 'https://www.newdreamvip.com/house/agent', 
-      method: 'post',
-      data: http_obj.data != undefined ? http_obj.data : {},
-      header: {
-          'applet-id': 6,
-          //设置参数内容类型为json
-          'content-type': 'application/json'
-      },
-      success: function(res) {
-        console.log(res.data)
-      }
+    console.log(this.$http)
+    this.$http.get({
+      url:'house/agent',
+      header:{'applet-id': 6}
+    }).then((res) => {
+      console.log(res)
+    }).catch((res) => {
+      console.log(res)
     })
-    // 调用应用实例的方法获取全局数据
-    // this.getUserInfo()
   }
 }
 </script>

@@ -1,6 +1,6 @@
 // 配置项
 
-const host = 'http://localhost:5757'
+const host = 'https://www.newdreamvip.com/'
 
 const config = {
   host
