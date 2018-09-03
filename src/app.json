@@ -2,7 +2,8 @@
   "pages": [
     "pages/home/main",
     "pages/search/main",
-    "pages/counter/main"
+    "pages/counter/main",
+    "pages/category/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -23,7 +24,7 @@
         "selectedIconPath": "static/image/home_selected.png"
       },
       {
-        "pagePath": "pages/counter/main",
+        "pagePath": "pages/category/main",
         "text": "分类",
         "iconPath": "static/image/category.png",
         "selectedIconPath": "static/image/category_selected.png"
