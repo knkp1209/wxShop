@@ -3,7 +3,11 @@ import config from './config'
 
 export default {
   get: (obj) => {
-    obj.header['x-api-key'] = config.key
+    if (obj.header == undefined) {
+      obj.header = {'x-api-key':config.key}
+    } else {
+      obj.header['x-api-key'] = config.key
+    }
     return new Promise((resolve, reject) => {
       wx.request({
         url: config.host + obj.url,
