@@ -2,8 +2,8 @@
   <div>
     <swiper class="sw_banner" :indicator-dots="indicatorDots"
       :autoplay="autoplay" :interval="interval" :duration="duration">
-        <swiper-item :key="i" v-for="(item,i) in imgUrls">
-          <image :src="imgUrls[i]" class="sw_banner" />
+        <swiper-item :key="i" v-for="(item,i) in banners">
+          <image :src="banners[i].url" class="sw_banner" />
         </swiper-item>
     </swiper>
     <a class="search" href="/pages/search/main?text=123">
@@ -19,17 +19,10 @@
       <div class="category">
         <swiper class="sw_cat" :indicator-dots="indicatorDots"
            :interval="interval" :duration="duration">
-            <swiper-item :key="i" v-for="(item,i) in imgUrls">
-              <span><image :src="imgUrls[i]" /><p>分类分类1</p></span>
-              <span><image :src="imgUrls[i]" /><p>分类分类1</p></span>
-              <span><image :src="imgUrls[i]" /><p>分类分类1</p></span>
-              <span><image :src="imgUrls[i]" /><p>分类1</p></span>
-              <span><image :src="imgUrls[i]" /><p>分类1</p></span>
-              <span><image :src="imgUrls[i]" /><p>分类1</p></span>
-              <span><image :src="imgUrls[i]" /><p>分类1</p></span>
-              <span><image :src="imgUrls[i]" /><p>分类1</p></span>
-              <span><image :src="imgUrls[i]" /><p>分类分类</p></span>
-              <span><image :src="imgUrls[i]" /><p>分类分类1</p></span>
+            <swiper-item :key="i" v-for="(categorys,i) in all_category">
+              <span :key="i" v-for="(category,index) in categorys">
+                <image :src="category.url" /><p>{{category.name}}</p>
+              </span>
             </swiper-item>
         </swiper>
       </div>
@@ -43,12 +36,14 @@
         </swiper>
         <p class="more">更多</p>
       </div>
-      <div class="three" :key="i" v-for="(xxx,j) in imgUrls">
-        <p class="three_title">热卖</p>
+      <div class="three" :key="i" v-for="(data,j) in all_goods">
+        <p class="three_title">{{data.title}}</p>
         <scroll-view class="scroll-view_H" scroll-x style="width: 100%">
-          <div id="green" :key="i" v-for="(item,i) in hot" class="scroll-view-item_H">
-            <image :src="hot[i]"></image>
-            <text class="goods_title">这是商品标题1这是商品标题1这是商品标题1这是商品标题1</text>
+          <div :key="i" v-for="(goods,i) in data.data" class="scroll-view-item_H">
+            <image :src="goods.url"></image>
+            <text class="goods_title">
+              {{goods.name}}
+            </text>
             <div class="price">
               <span class="sell"><text>￥12.9</text></span>
               <span class="original"><text>￥10.9</text></span>
@@ -87,6 +82,9 @@
 export default {
   data () {
     return {
+      banners:[],
+      all_category:[],
+      all_goods:[],
       imgUrls: [
         'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
         'http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg',
@@ -115,9 +113,25 @@ export default {
   created () {
     console.log(this.$http)
     this.$http.get({
-      url:'house/agent',
-      header:{'applet-id': 6}
+      url:'banners',
     }).then((res) => {
+      this.banners = res.data.data
+      console.log(res)
+    }).catch((res) => {
+      console.log(res)
+    })
+    this.$http.get({
+      url:'categorys',
+    }).then((res) => {
+      this.all_category = res.data.data
+      console.log(res)
+    }).catch((res) => {
+      console.log(res)
+    })
+    this.$http.get({
+      url:'goods',
+    }).then((res) => {
+      this.all_goods = res.data.data
       console.log(res)
     }).catch((res) => {
       console.log(res)
@@ -274,6 +288,7 @@ export default {
   -webkit-box-orient: vertical; 
   -webkit-line-clamp: 2;
   overflow: hidden;
+  height: 80rpx;
 }
 .price {
   display: flex;
