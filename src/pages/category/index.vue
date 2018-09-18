@@ -452,7 +452,7 @@ export default {
     }
   },
 
-  created () {
+  onLoad () {
 
   }
 }

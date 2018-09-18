@@ -1,38 +1,34 @@
 <template>
   <div>
-    <swiper class="sw_banner" :indicator-dots="indicatorDots"
-      :autoplay="autoplay" :interval="interval" :duration="duration">
-        <swiper-item :key="i" v-for="(item,i) in banners">
-          <image :src="banners[i].url" class="sw_banner" />
-        </swiper-item>
-    </swiper>
-    <a class="search" href="/pages/search/main?text=123">
-      <div class="search_input_icon">
+    <div class="search" :class="[bg_search ? 'bg_search' : '' ]">
+      <a class="search_input_icon" href="/pages/search/main?text=123">
         <div class="search_input">
           <icon class="search_cion" size='20' type='search'></icon>
           <input class="" placeholder="搜索" />
         </div>
-      </div>
-      <!-- <div class='search_button'>搜索</div> -->
-    </a>
+      </a>
+    </div>
+    <swiper class="sw_banner" :indicator-dots="indicatorDots" :autoplay="autoplay" :interval="interval" :duration="duration">
+      <swiper-item :key="i" v-for="(item,i) in banners">
+        <image :src="banners[i].url" class="sw_banner" />
+      </swiper-item>
+    </swiper>
     <div class="container main">
       <div class="category">
-        <swiper class="sw_cat" :indicator-dots="indicatorDots"
-           :interval="interval" :duration="duration">
-            <swiper-item :key="i" v-for="(categorys,i) in all_category">
-              <span :key="i" v-for="(category,index) in categorys">
+        <swiper class="sw_cat" :indicator-dots="indicatorDots" :interval="interval" :duration="duration">
+          <swiper-item :key="i" v-for="(categorys,i) in all_category">
+            <span @click="toGoodsList(category.id)" :key="i" v-for="(category,index) in categorys">
                 <image :src="category.url" /><p>{{category.name}}</p>
               </span>
-            </swiper-item>
+          </swiper-item>
         </swiper>
       </div>
       <div class="notify">
         <p class="news">新闻资讯</p>
-        <swiper class="sw_notify"
-           :interval="interval" :duration="duration" vertical="true" autoplay="true">
-            <swiper-item :key="i" v-for="(item,i) in imgUrls">
-              <span>通知</span>
-            </swiper-item>
+        <swiper class="sw_notify" :interval="interval" :duration="duration" vertical="true" autoplay="true">
+          <swiper-item :key="i" v-for="(item,i) in notice">
+            <span>{{item}}</span>
+          </swiper-item>
         </swiper>
         <p class="more">更多</p>
       </div>
@@ -45,14 +41,16 @@
               {{goods.name}}
             </text>
             <div class="price">
-              <span class="sell"><text>￥12.9</text></span>
-              <span class="original"><text>￥10.9</text></span>
+              <span class="sell"><text>￥{{goods.sell_price}}</text></span>
+              <span class="original"><text>￥{{goods.price}}</text></span>
             </div>
           </div>
         </scroll-view>
       </div>
       <div class="one" :key="i" v-for="(item,i) in imgUrls">
-        <div class="left"><image :src="imgUrls[i]" /></div>
+        <div class="left">
+          <image :src="imgUrls[i]" />
+        </div>
         <div class="right">
           <text class="goods_title">这是商品标题1这是商品标题1这是商品标题1这是商标题1这是商品标题1这是商品标题1</text>
           <div class="price m_top_150rpx">
@@ -65,7 +63,9 @@
     <div class="container">
       <div class="two">
         <div class="deuce" :key="i" v-for="(item,i) in imgUrls">
-          <div><image :src="imgUrls[i]" /></div>
+          <div>
+            <image :src="imgUrls[i]" />
+          </div>
           <text class="goods_title">这是商品标题1这是商品标题1这是商品标题1这是商标题1这是商品标题1这是商品标题1</text>
           <div class="price">
             <span class="sell"><text>￥12.9</text></span>
@@ -76,31 +76,15 @@
     </div>
   </div>
 </template>
-
 <script>
-
 export default {
-  data () {
+  data() {
     return {
-      banners:[],
-      all_category:[],
-      all_goods:[],
-      imgUrls: [
-        'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175833047715.jpg'
-      ],
-      hot: [
-        'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175833047715.jpg',
-        'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175833047715.jpg',
-        'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175833047715.jpg'
-      ],
+      banners: [],
+      notice: ['公告功能', '敬请期待!'],
+      all_category: [],
+      all_goods: [],
+      bg_search: false, // 搜索框是否显示背景色
       indicatorDots: true,
       autoplay: true,
       interval: 3000,
@@ -108,76 +92,61 @@ export default {
     }
   },
   methods: {
+    fetchData() {
+      wx.showLoading({
+        title: '加载中...',
+        mask: true
+      })
+      this.$http.get({
+        url: 'banners',
+      }).then((res) => {
+        this.banners = res.data.result
+      }).catch((res) => {
+        console.log(res)
+      })
+      this.$http.get({
+        url: 'categorys',
+      }).then((res) => {
+        this.all_category = res.data.result
+      }).catch((res) => {
+        console.log(res)
+      })
+      this.$http.get({
+        url: 'goods',
+      }).then((res) => {
+        this.all_goods = res.data.result
+      }).catch((res) => {
+        console.log(res)
+      }).finally(() => {
+        wx.hideLoading()
+        wx.stopPullDownRefresh()
+      })
+    },
+    toGoodsList(id) {
+      this.$to.n('../goodsList/main')
+    }
   },
-
-  created () {
-    console.log(this.$http)
-    this.$http.get({
-      url:'banners',
-    }).then((res) => {
-      this.banners = res.data.data
-      console.log(res)
-    }).catch((res) => {
-      console.log(res)
-    })
-    this.$http.get({
-      url:'categorys',
-    }).then((res) => {
-      this.all_category = res.data.data
-      console.log(res)
-    }).catch((res) => {
-      console.log(res)
-    })
-    this.$http.get({
-      url:'goods',
-    }).then((res) => {
-      this.all_goods = res.data.data
-      console.log(res)
-    }).catch((res) => {
-      console.log(res)
-    })
+  onPullDownRefresh() {
+    this.fetchData()
+  },
+  onLoad() {
+    this.fetchData()
+  },
+  onPageScroll(obj) {
+    if (obj.scrollTop > 120) {
+      this.bg_search = true
+    } else {
+      this.bg_search = false
+    }
   }
 }
-</script>
 
+</script>
 <style scoped>
 .sw_banner {
   width: 100%;
   height: 311rpx;
   display: block;
-}
-
-.search{
-  width: 100%;
-  position: absolute;
-  top: 5rpx;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-.search_input_icon{
-  width: 80%;
-}
-.search_cion {
-  margin: 10rpx 10rpx 10rpx 10rpx;
-  position: absolute;
-  left: 100rpx;
-  z-index: 2;
-  width: 20rpx;
-  height: 20rpx;
-  text-align: center;
-}
-.search_input {
-  border: 2rpx solid #d0d0d0;
-  background: #FFFFFF;
-  border-radius: 10rpx;
-  margin-left: 20rpx;
-}
-.search_input input{
-  margin-left: 60rpx;
-  height: 60rpx;
-  border-radius: 10rpx;
-  font-size: 30rpx;
 }
 
 .main {
@@ -192,11 +161,13 @@ export default {
   width: 100%;
   border-radius: 10rpx 10rpx 0 0;
 }
+
 .sw_cat {
   width: 100%;
   height: 340rpx;
   display: block;
 }
+
 .sw_cat span {
   display: inline-block;
   /*margin-bottom: 10rpx;*/
@@ -205,17 +176,19 @@ export default {
   height: 150rpx;
   text-align: center;
 }
+
 .sw_cat image {
   width: 100rpx;
   height: 100rpx;
   border-radius: 10rpx;
 }
+
 .sw_cat p {
   padding: 0;
   display: block;
   overflow: hidden;
   white-space: nowrap;
-  text-overflow:ellipsis;
+  text-overflow: ellipsis;
 }
 
 .notify {
@@ -225,6 +198,7 @@ export default {
   width: 100%;
   border-radius: 0 0 10rpx 10rpx;
 }
+
 .news {
   display: block;
   height: 50rpx;
@@ -237,6 +211,7 @@ export default {
   text-align: center;
   padding: 0 10rpx;
 }
+
 .sw_notify {
   width: 65%;
   height: 50rpx;
@@ -244,6 +219,7 @@ export default {
   display: block;
   float: left;
 }
+
 .more {
   display: block;
   height: 50rpx;
@@ -259,21 +235,25 @@ export default {
   background: #FFFFFF;
   border-radius: 10rpx;
 }
+
 .three_title {
   font-size: 40rpx;
-  font-family:"黑体";
+  font-family: "黑体";
   padding: 5rpx 0;
 }
-.scroll-view_H{
+
+.scroll-view_H {
   white-space: nowrap;
 }
-.scroll-view-item_H{
+
+.scroll-view-item_H {
   background: #FFFFFF;
   display: inline-block;
   width: 220rpx;
   height: 350rpx;
   margin-left: 20rpx;
 }
+
 .scroll-view-item_H image {
   width: 220rpx;
   height: 220rpx;
@@ -284,27 +264,11 @@ export default {
   white-space: pre-wrap;
   word-break: break-word;
   text-overflow: ellipsis;
-  display: -webkit-box; 
-  -webkit-box-orient: vertical; 
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
   height: 80rpx;
-}
-.price {
-  display: flex;
-  margin-top: 5rpx;
-}
-.price span {
-  flex: 1;
-  /*background: red;*/
-  text-align: left;
-}
-.price .sell {
-  color: #f04827;
-}
-.price .original {
-  color: #a79d9d;
-  text-decoration:line-through;
 }
 
 .two {
@@ -312,6 +276,7 @@ export default {
   margin-top: 5rpx;
   /*background: #FFFFFF;*/
 }
+
 .deuce {
   display: inline-block;
   width: 351rpx;
@@ -321,12 +286,14 @@ export default {
   background: #FFFFFF;
   border-radius: 10rpx;
 }
-.deuce image{
+
+.deuce image {
   width: 351rpx;
   height: 351rpx;
   border-radius: 10rpx 10rpx 0 0;
   overflow: hidden;
 }
+
 .deuce .price span {
   text-align: center;
 }
@@ -340,21 +307,26 @@ export default {
   justify-content: center;
   background: #FFFFFF;
 }
+
 .left {
   width: 250rpx;
   /*background: red;*/
 }
+
 .left image {
   width: 250rpx;
   height: 250rpx;
   border-radius: 10rpx;
 }
+
 .right {
   flex: 1;
   padding: 0 5rpx;
   /*background: blue;*/
 }
+
 .right .m_top_150rpx {
   margin-top: 130rpx;
 }
+
 </style>

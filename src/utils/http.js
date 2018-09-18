@@ -8,12 +8,50 @@ export default {
     } else {
       obj.header['x-api-key'] = config.key
     }
+    let storage = wx.getStorageSync('vuex')
+    if (storage != ''){
+      storage = JSON.parse(storage)
+      obj.header['token'] = storage.token
+    }
+    
     return new Promise((resolve, reject) => {
       wx.request({
         url: config.host + obj.url,
         header: obj.header,
         method: 'GET',
         success: function (res) {
+          if (res.statusCode >= 400) {
+            reject()
+          }
+          resolve(res)
+        },
+        fail: function (res) {
+          reject(res)
+        }
+      })
+    })
+  },
+  post: (obj) => {
+    if (obj.header == undefined) {
+      obj.header = {'x-api-key':config.key}
+    } else {
+      obj.header['x-api-key'] = config.key
+    }
+    let storage = wx.getStorageSync('vuex')
+    if (storage != ''){
+      storage = JSON.parse(storage)
+      obj.header['token'] = storage.token
+    }
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: config.host + obj.url,
+        header: obj.header,
+        data: obj.data,
+        method: 'POST',
+        success: function (res) {
+          if (res.statusCode >= 400) {
+            reject()
+          }
           resolve(res)
         },
         fail: function (res) {

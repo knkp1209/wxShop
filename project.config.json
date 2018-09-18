@@ -29,12 +29,31 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 0,
+			"current": 3,
 			"list": [
 				{
 					"id": -1,
 					"name": "home",
-					"pathName": "pages/home/main"
+					"pathName": "pages/home/main",
+					"query": ""
+				},
+				{
+					"id": 1,
+					"name": "搜索",
+					"pathName": "pages/search/main",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "商品列表",
+					"pathName": "pages/goodsList/main",
+					"query": ""
+				},
+				{
+					"id": 3,
+					"name": "商品",
+					"pathName": "pages/goodsDetail/main",
+					"query": "id=10395"
 				}
 			]
 		}

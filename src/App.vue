@@ -21,7 +21,7 @@ export default {
   box-sizing: border-box;
   background: #e6dede;
   font-size: 30rpx;
-  font-family: "Arial","Microsoft YaHei","黑体","宋体",sans-serif;
+  font-family: "Microsoft YaHei","Arial","黑体","宋体",sans-serif;
 }
 
 /* search Start */
@@ -76,4 +76,32 @@ export default {
   border-radius: 10rpx;
 }
 /* search End */
+
+/* goods price Start */
+.price {
+  display: flex;
+  margin-top: 5rpx;
+  overflow: auto;
+}
+
+.price span {
+  /*flex: 1;*/
+  /*background: red;*/
+  text-align: left;
+}
+
+.price span+span{
+  padding-left: 10rpx;
+}
+
+.price .sell {
+  color: #f04827;
+}
+
+.price .original {
+  color: #a79d9d;
+  text-decoration: line-through;
+}
+
+/* goods price End */
 </style>
