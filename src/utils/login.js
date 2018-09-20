@@ -1,6 +1,10 @@
 import config from './config'
 
 export default (e, vue) => {
+  wx.showLoading({
+    title: '加载中',
+    mask: true
+  })
   if (e.target.encryptedData == undefined) {
     wx.showModal({
       title: '请重新授权',
@@ -10,38 +14,36 @@ export default (e, vue) => {
     return Promise.reject();
   }
   return new Promise((resolve, reject) => {
-    wx.checkSession({
-      success() {
-        resolve()
-      },
-      fail() {
-        wx.login({
-          success(res) {
-            wx.request({
-              url: config.host + 'wechat/login',
-              header: { 'x-api-key': config.key, 'token': vue.$store.state.token },
-              data: {
-                code: res.code,
-                encryptedData: e.target.encryptedData,
-                iv: e.target.iv
-              },
-              method: 'POST',
-              success(r) {
-                if (r.statusCode >= 400) {
-                  reject()
-                }
-                vue.$store.commit('SET_USER_INFO',(e.target.userInfo))
-                vue.$store.commit('SET_TOKEN',r.data.result)
-                resolve()
-              },
-              fail(r) {
-                console.log(r)
-                reject()
-              }
-            })
+    wx.login({
+      success(res) {
+        wx.request({
+          url: config.host + 'wechat/login',
+          header: { 'x-api-key': config.key, 'token': vue.$store.state.token },
+          data: {
+            code: res.code,
+            encryptedData: e.target.encryptedData,
+            iv: e.target.iv
+          },
+          method: 'POST',
+          success(r) {
+            if (r.statusCode >= 400) {
+              reject()
+            }
+            vue.$store.commit('SET_USER_INFO', (e.target.userInfo))
+            vue.$store.commit('SET_TOKEN', r.data.result)
+            wx.setStorageSync('logged', true),
+              resolve()
+          },
+          fail(r) {
+            console.log(r)
+            reject()
+          },
+          complete() {
+            wx.hideLoading()
           }
         })
-      }
+      },
+
     })
   })
 }
