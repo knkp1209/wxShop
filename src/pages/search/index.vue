@@ -4,10 +4,10 @@
       <div class="search_input_icon">
         <div class="search_input">
           <icon class="search_cion" size='20' type='search'></icon>
-          <input class="" placeholder="请输入关键字" />
+          <input class="" placeholder="请输入你要找的商品" auto-focus v-model="keyword" />
         </div>
       </div>
-      <div class='search_button'>搜索</div>
+      <div class='search_button' @click="search">搜索</div>
     </div>
     <div class="container main">
     </div>
@@ -19,16 +19,27 @@
 export default {
   data () {
     return {
+      keyword: ''
     }
   },
   methods: {
-
+    search() {
+      if (this.keyword == '') {
+        wx.showToast({
+          title: '请输入你要找的商品',
+          icon: 'none',
+          duration: 1500,
+        });
+      } else {
+        this.$to.r('../goodsList/main?keyword=' + this.keyword)
+      }
+    }
   },
-
-  created () {
-    // 调用应用实例的方法获取全局数据
-    // this.getUserInfo()
-  }
+  onLoad(obj) {
+    if (obj.keyword) {
+      this.keyword = obj.keyword
+    }
+  },
 }
 </script>
 

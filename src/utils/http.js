@@ -13,11 +13,15 @@ export default {
       storage = JSON.parse(storage)
       obj.header['token'] = storage.token
     }
-    
+    let data = null
+    if (obj.data != undefined) {
+      data = obj.data
+    }
     return new Promise((resolve, reject) => {
       wx.request({
         url: config.host + obj.url,
         header: obj.header,
+        data: data,
         method: 'GET',
         success: function (res) {
           if (res.statusCode >= 400) {

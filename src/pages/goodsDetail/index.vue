@@ -16,10 +16,23 @@
     <rich-text :nodes="goods.detail" bindtap="tap"></rich-text>
     <!-- 底部悬浮栏 -->
     <div class="detail-nav">
-      <image @click="toCar" src="/static/image/cart.png" />
-      <image @click="addLike" :src="[ isLike ? '/static/image/love_selected.png':'/static/image/love.png']" />
-      <button class="button-green" @click="preCar" formType="submit">加入购物车</button>
-      <button class="button-red" @getuserinfo="preBuy" open-type="getUserInfo" lang="zh_CN">立即购买</button>
+      <button class="button_none" @click="toCart">
+        <image src="/static/image/cart.png" />
+      </button>
+      <block v-if="logged">
+        <button class="button_none" @click="love">
+          <image :src="[ goods.collection ? '/static/image/love_selected.png':'/static/image/love.png']" />
+        </button>
+        <button class="button-green" @click="pre('addCart')">加入购物车</button>
+        <button class="button-red" @click="pre('buy')">立即购买</button>
+      </block>
+      <block v-else>
+        <button class="button_none" @getuserinfo="(e) => checkLogin(e,'love')" open-type="getUserInfo" lang="zh_CN">
+          <image :src="[ goods.collection ? '/static/image/love_selected.png':'/static/image/love.png']" />
+        </button>
+        <button class="button-green" @getuserinfo="(e) => checkLogin(e,'addCart')" open-type="getUserInfo" lang="zh_CN">加入购物车</button>
+        <button class="button-red" @getuserinfo="(e) => checkLogin(e,'buy')" open-type="getUserInfo" lang="zh_CN">立即购买</button>
+      </block>
     </div>
     <!-- sku选择 -->
     <div class="sku_div" :class="[choose_sku ? 'choose_sku' : '']">
@@ -27,24 +40,33 @@
       </div>
       <div class="goods">
         <div class="price">
-          <span>库存：{{goods.stock}}{{goods.unit}}</span>
           <span class="sell">￥{{goods.sell_price}}</span>
           <span class="original">￥{{goods.price}}</span>
+          <span>库存：{{goods.stock}}{{goods.unit}}</span>
+          <span>销量：{{goods.sale}}{{goods.unit}}</span>
         </div>
         <div class="close" @click="choose_sku = false">X</div>
       </div>
       <div class="sku">
         <div v-for="(spec,i) in specs" :key="i">
           <span>{{spec.name}}</span>
-          <radio-group class="radio-group" @change="(e) => radioChange(e,spec.name)">
+          <radio-group class="radio-group" @change="(e) => radioChange(e,spec.name,i)">
             <span class="radio" v-for="(value, index) in spec.values" :key="index">
               <radio :value="value" />{{value}}
             </span>
           </radio-group>
         </div>
+        <div class="quantity">
+          <span>数量</span>
+          <div>
+            <button :disabled="quantity <= 1" :class="[quantity <= 1 ? 'disabled' : '']"  @click="dec">-</button>
+            <input type="digit" v-model="quantity" />
+            <button :disabled="quantity >= goods.stock" :class="[quantity >= goods.stock  ? 'disabled' : '']" @click="inc">+</button>
+          </div>
+        </div>
       </div>
       <div class="buy">
-        <button class="button-green" @click="addCar" formType="submit">加入购物车</button>
+        <button class="button-green" @click="addCart">加入购物车</button>
         <button class="button-red" @click="buy">立即购买</button>
       </div>
     </div>
@@ -56,11 +78,13 @@ export default {
   data() {
     return {
       goods: {},
-      choose_sku: false,
+      product_id: false,
+      quantity: 1,
       specs: {}, // 规格列表
       specs_length: 0, // 规格长度
       post_spec: {},
-      isLike: true,
+      logged: false,
+      choose_sku: false,
       indicatorDots: true, //是否显示面板指示点
       autoplay: true, //是否自动切换
       interval: 3000, //自动切换时间间隔,3s
@@ -88,33 +112,41 @@ export default {
     fetchProduct(spec, id) {
       wx.showLoading({
         title: '获取中...',
-        mask: true
       })
+      let data = { goods_id: id, spec: spec }
       this.$http.post({
-        url: 'product/' + id,
-        data: spec
+        url: 'products',
+        data: data
       }).then((res) => {
-        this.goods = res.data.result
-        this.arrange(res.data.result.specs)
+        console.log(res)
+        let p = res.data.result
+        this.product_id = p.id
+        this.goods.sell_price = p.sell_price
+        this.goods.price = p.price
+        this.goods.sale = p.sale
+        this.goods.stock = p.stock
       }).catch((res) => {
         console.log(res)
       }).finally(() => {
         wx.hideLoading()
-        wx.stopPullDownRefresh()
       })
     },
     arrange(specs) {
-      this.specs = JSON.parse(specs)
-      this.specs_length = Object.keys(this.specs).length
-      console.log(this.specs)
+      if (specs == null) {
+        this.specs = {}
+        this.specs_length = 0
+      } else {
+        this.specs = JSON.parse(specs)
+        this.specs_length = Object.keys(this.specs).length
+      }
     },
-    radioChange(e, name) {
-      console.log(e)
-      this.post_spec[name] = e.target.value
+    radioChange(e, name, i) {
+      if (this.post_spec[i] == undefined) {
+        this.post_spec[i] = {}
+      }
+      this.post_spec[i][name] = e.target.value
       if (Object.keys(this.post_spec).length == this.specs_length) {
-        console.log(this.post_spec)
         this.fetchProduct(this.post_spec, this.goods.id)
-        console.log('可以发送请求')
       }
     },
     previewImage(e) {
@@ -129,42 +161,110 @@ export default {
       })
     },
     // 收藏
-    addLike() {
-      this.isLike = !this.isLike
+    love() {
+      this.goods.collection = !this.goods.collection
+      let data = {
+        goods_id: this.goods.id,
+        collection: this.goods.collection
+      }
+      this.$http.post({
+        data: data,
+        url: 'collection'
+      }).then((res) => {
+        // console.log(res)
+      }).catch((res) => {
+        console.log('catch', res)
+      })
     },
     // 跳到购物车
-    toCar() {
+    toCart() {
       this.$to.s('../cart/main')
     },
-    // 立即购买
-    preBuy(e) {
-      wx.showLoading({
-        title: '加载中...',
-        mask: true
+    checkLogin(e, name) {
+      let _this = this
+      login(e, _this).then(() => {
+        _this.pre(name)
+        _this.logged = wx.getStorageSync('logged')
       })
-      login(e,this).then(() => {
+    },
+    pre(name) {
+      if (name == 'addCart') {
         if (this.specs_length > 0) {
           this.choose_sku = true
-          wx.hideLoading()
         } else {
-          console.log('wen')
-          this.buy()
-          
+          this.addCart()
         }
-      }).finally(() =>{
-        wx.hideLoading()
+      } else if (name == 'buy') {
+        if (this.specs_length > 0) {
+          this.choose_sku = true
+        } else {
+          this.buy()
+        }
+      }
+    },
+    addCart() {
+      let data = {
+        goods_id: this.goods.id,
+        quantity: this.quantity
+      }
+      if (this.choose_sku == true) {
+        if (this.product_id == false) {
+          wx.showToast({
+            title: '请选择规格',
+            icon: 'none',
+            duration: 500,
+          });
+          return false;
+        } else {
+          data.product_id = this.product_id
+        } 
+      }
+      this.$http.post({
+        data: data,
+        url: 'carts'
+      }).then((res) => {
+        wx.showToast({
+          title: '添加成功',
+          duration: 1000
+        });
+        console.log(res)
+      }).catch((res) => {
+        console.log('catch', res)
       })
     },
-    // 立即购买
+    // 购买
     buy() {
-      console.log('a')
+      console.log(this.goods.id)
     },
+    goodsInit() {
+      this.goods = {}
+      this.choose_sku = false
+      this.specs = {} // 规格列表
+      this.specs_length = 0 // 规格长度
+      this.post_spec = {}
+      this.logged = wx.getStorageSync('logged')
+      this.product_id = false
+    },
+    dec() {
+      this.quantity = (Math.floor(this.quantity * 100) - 100) / 100
+    },
+    inc() {
+      let temp = (Math.floor(this.quantity * 100) + 100) / 100
+      if (temp > this.goods.stock) {
+        this.quantity = this.goods.stock
+      } else {
+        this.quantity = temp
+      }
+    }
   },
   onPullDownRefresh() {
-    this.fetchData(this.goods.id)
+    let id = this.goods.id
+    this.goodsInit()
+    this.fetchData(id)
+
   },
   onLoad(obj) {
-    console.log(obj);
+    this.goodsInit()
     this.fetchData(obj.id)
   },
 }
@@ -225,18 +325,50 @@ export default {
   overflow: auto;
 }
 
-.buy {
-  height: 100rpx;
-  background: red;
+.sku .quantity {
+  margin-top: 20rpx;
 }
 
+.sku .quantity div {
+  width: 240rpx;
+  height: 100rpx;
+  border-radius: 10rpx;
+  display: flex;
+  margin-left: 10rpx;
+}
 
+.sku .quantity input {
+  flex: 2;
+  padding: 0rpx;
+  text-align: center;
+  min-height: 60rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  border: 1rpx solid #DCDCDC;
+  border-radius: 8rpx;
+  margin: 0rpx 2rpx;
+  box-sizing:border-box;
+  vertical-align:middle;
+}
 
+.sku .quantity button {
+  flex: 1;
+  width: 60rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  background: #FFFFFF;
+  padding: 0rpx;
+  color: #000000;
+}
 
+.sku .quantity .disabled {
+  color:#DCDCDC;
+}
 
-
-
-
+.buy {
+  height: 100rpx;
+  background: #FF0000;
+}
 
 /* 直接设置swiper属性 */
 
@@ -306,9 +438,9 @@ button {
 }
 
 .detail-nav image {
-  width: 80rpx;
+  width: 60rpx;
   height: 60rpx;
-  margin: 0rpx 25rpx;
+  /*margin: 0rpx 25rpx;*/
   /*background: red;*/
 }
 

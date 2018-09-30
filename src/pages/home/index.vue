@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="search" :class="[bg_search ? 'bg_search' : '' ]">
-      <a class="search_input_icon" href="/pages/search/main?text=123">
+      <a class="search_input_icon" href="/pages/search/main">
         <div class="search_input">
           <icon class="search_cion" size='20' type='search'></icon>
           <input class="" placeholder="搜索" />
@@ -17,7 +17,7 @@
       <div class="category">
         <swiper class="sw_cat" :indicator-dots="indicatorDots" :interval="interval" :duration="duration">
           <swiper-item :key="i" v-for="(categorys,i) in all_category">
-            <span @click="toGoodsList(category.id)" :key="i" v-for="(category,index) in categorys">
+            <span @click="toGoodsList(category)" :key="i" v-for="(category,index) in categorys">
                 <image :src="category.url" /><p>{{category.name}}</p>
               </span>
           </swiper-item>
@@ -35,7 +35,7 @@
       <div class="three" :key="i" v-for="(data,j) in all_goods">
         <p class="three_title">{{data.title}}</p>
         <scroll-view class="scroll-view_H" scroll-x style="width: 100%">
-          <div :key="i" v-for="(goods,i) in data.data" class="scroll-view-item_H">
+          <div :key="i" v-for="(goods,i) in data.data" class="scroll-view-item_H" @click="$to.Goods(goods.id)">
             <image :src="goods.url"></image>
             <text class="goods_title">
               {{goods.name}}
@@ -46,32 +46,6 @@
             </div>
           </div>
         </scroll-view>
-      </div>
-      <div class="one" :key="i" v-for="(item,i) in imgUrls">
-        <div class="left">
-          <image :src="imgUrls[i]" />
-        </div>
-        <div class="right">
-          <text class="goods_title">这是商品标题1这是商品标题1这是商品标题1这是商标题1这是商品标题1这是商品标题1</text>
-          <div class="price m_top_150rpx">
-            <span class="sell"><text>￥12.9</text></span>
-            <span class="original"><text>￥10.9</text></span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      <div class="two">
-        <div class="deuce" :key="i" v-for="(item,i) in imgUrls">
-          <div>
-            <image :src="imgUrls[i]" />
-          </div>
-          <text class="goods_title">这是商品标题1这是商品标题1这是商品标题1这是商标题1这是商品标题1这是商品标题1</text>
-          <div class="price">
-            <span class="sell"><text>￥12.9</text></span>
-            <span class="original"><text>￥10.9</text></span>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -105,7 +79,7 @@ export default {
         console.log(res)
       })
       this.$http.get({
-        url: 'categorys',
+        url: 'categorys/home',
       }).then((res) => {
         this.all_category = res.data.result
       }).catch((res) => {
@@ -122,8 +96,12 @@ export default {
         wx.stopPullDownRefresh()
       })
     },
-    toGoodsList(id) {
-      this.$to.n('../goodsList/main')
+    toGoodsList(category) {
+      let cat = {
+        name: category.name,
+        id:   category.id
+      }
+      this.$to.n('../goodsList/main?category=' + JSON.stringify(cat))
     }
   },
   onPullDownRefresh() {
@@ -271,62 +249,5 @@ export default {
   height: 80rpx;
 }
 
-.two {
-  width: 100%;
-  margin-top: 5rpx;
-  /*background: #FFFFFF;*/
-}
-
-.deuce {
-  display: inline-block;
-  width: 351rpx;
-  height: 480rpx;
-  margin: 1% 12rpx;
-  text-align: center;
-  background: #FFFFFF;
-  border-radius: 10rpx;
-}
-
-.deuce image {
-  width: 351rpx;
-  height: 351rpx;
-  border-radius: 10rpx 10rpx 0 0;
-  overflow: hidden;
-}
-
-.deuce .price span {
-  text-align: center;
-}
-
-.one {
-  width: 100%;
-  height: 250rpx;
-  margin-top: 5rpx;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  background: #FFFFFF;
-}
-
-.left {
-  width: 250rpx;
-  /*background: red;*/
-}
-
-.left image {
-  width: 250rpx;
-  height: 250rpx;
-  border-radius: 10rpx;
-}
-
-.right {
-  flex: 1;
-  padding: 0 5rpx;
-  /*background: blue;*/
-}
-
-.right .m_top_150rpx {
-  margin-top: 130rpx;
-}
 
 </style>

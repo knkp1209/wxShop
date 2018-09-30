@@ -19,10 +19,24 @@ export default {
   align-items: center;
   justify-content: space-between;
   box-sizing: border-box;
-  background: #e6dede;
+  background: #f9f6f6;
   font-size: 30rpx;
   font-family: "Microsoft YaHei","Arial","黑体","宋体",sans-serif;
 }
+
+/* Button Login Start */
+.button_none::after {
+  border: none;
+}
+.button_none{
+  background: #FFFFFF;
+  width: 140rpx !important;
+  height: 100% !important;
+  padding: 20rpx 0rpx 0rpx 0rpx !important;
+  vertical-align: center;
+}
+/* Button Login End */
+
 
 /* search Start */
 .bg_search {
