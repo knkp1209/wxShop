@@ -59,7 +59,7 @@
         <div class="quantity">
           <span>数量</span>
           <div>
-            <button :disabled="quantity <= 1" :class="[quantity <= 1 ? 'disabled' : '']"  @click="dec">-</button>
+            <button :disabled="quantity <= 1" :class="[quantity <= 1 ? 'disabled' : '']" @click="dec">-</button>
             <input type="digit" v-model="quantity" />
             <button :disabled="quantity >= goods.stock" :class="[quantity >= goods.stock  ? 'disabled' : '']" @click="inc">+</button>
           </div>
@@ -80,6 +80,7 @@ export default {
       goods: {},
       product_id: false,
       quantity: 1,
+      spec: {},
       specs: {}, // 规格列表
       specs_length: 0, // 规格长度
       post_spec: {},
@@ -101,7 +102,7 @@ export default {
         url: 'goods/' + id,
       }).then((res) => {
         this.goods = res.data.result
-        this.arrange(res.data.result.specs)
+        this.arrange(res.data.result)
       }).catch((res) => {
         console.log(res)
       }).finally(() => {
@@ -118,25 +119,26 @@ export default {
         url: 'products',
         data: data
       }).then((res) => {
-        console.log(res)
         let p = res.data.result
         this.product_id = p.id
         this.goods.sell_price = p.sell_price
         this.goods.price = p.price
         this.goods.sale = p.sale
         this.goods.stock = p.stock
+        this.spec = p.spec
       }).catch((res) => {
         console.log(res)
       }).finally(() => {
         wx.hideLoading()
       })
     },
-    arrange(specs) {
-      if (specs == null) {
+    arrange(data) {
+      if (data.specs == null) {
         this.specs = {}
         this.specs_length = 0
+        this.product_id = data.product.id
       } else {
-        this.specs = JSON.parse(specs)
+        this.specs = JSON.parse(data.specs)
         this.specs_length = Object.keys(this.specs).length
       }
     },
@@ -203,10 +205,6 @@ export default {
       }
     },
     addCart() {
-      let data = {
-        goods_id: this.goods.id,
-        quantity: this.quantity
-      }
       if (this.choose_sku == true) {
         if (this.product_id == false) {
           wx.showToast({
@@ -215,9 +213,12 @@ export default {
             duration: 500,
           });
           return false;
-        } else {
-          data.product_id = this.product_id
-        } 
+        }
+      }
+      let data = {
+        goods_id: this.goods.id,
+        quantity: this.quantity,
+        product_id: this.product_id
       }
       this.$http.post({
         data: data,
@@ -227,18 +228,37 @@ export default {
           title: '添加成功',
           duration: 1000
         });
-        console.log(res)
       }).catch((res) => {
         console.log('catch', res)
       })
     },
     // 购买
     buy() {
-      console.log(this.goods.id)
+      if (this.choose_sku == true) {
+        if (this.product_id == false) {
+          wx.showToast({
+            title: '请选择规格',
+            icon: 'none',
+            duration: 500,
+          });
+          return false;
+        }
+      }
+      let data = [{
+        goods_id: this.goods.id,
+        url: this.goods.url,
+        goods_name: this.goods.name,
+        sell_price: this.goods.sell_price,
+        spec: this.spec,
+        quantity: this.quantity,
+        stock: this.stock
+      }]
+      this.$to.n('../pay/main?carts=' + JSON.stringify(data))
     },
     goodsInit() {
       this.goods = {}
       this.choose_sku = false
+      this.spec = {}
       this.specs = {} // 规格列表
       this.specs_length = 0 // 规格长度
       this.post_spec = {}
@@ -347,8 +367,8 @@ export default {
   border: 1rpx solid #DCDCDC;
   border-radius: 8rpx;
   margin: 0rpx 2rpx;
-  box-sizing:border-box;
-  vertical-align:middle;
+  box-sizing: border-box;
+  vertical-align: middle;
 }
 
 .sku .quantity button {
@@ -362,7 +382,7 @@ export default {
 }
 
 .sku .quantity .disabled {
-  color:#DCDCDC;
+  color: #DCDCDC;
 }
 
 .buy {

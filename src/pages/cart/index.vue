@@ -10,7 +10,8 @@
             <image :src="goods.url" />
           </div>
           <div class="right">
-            <span class="goods_title">这是商品标题1这是商品标题1这是商品标题1这是商标题1这是商品标题1这是商品标题1
+            <span class="goods_title">
+              {{goods.goods_name}}
             </span>
             <div class="goods_spec">
               <span v-for="(item,j) in goods.spec" :key="j">{{item}}</span>
@@ -94,6 +95,7 @@ export default {
     },
     dec(i) {
       this.quantity[i] = (Math.floor(this.quantity[i] * 100) - 100) / 100
+      this.addCart(i)
       this.computeTotal()
     },
     inc(i) {
@@ -103,6 +105,7 @@ export default {
       } else {
         this.quantity[i] = temp
       }
+      this.addCart(i)
       this.computeTotal()
     },
     computeTotal() {
@@ -138,7 +141,15 @@ export default {
           carts.push(this.list[i])
         }
       }
-      console.log(carts)
+      if (carts.length > 0) {
+        this.$to.n('../pay/main?carts=' + JSON.stringify(carts))
+      } else {
+        wx.showToast({
+          title: '请勾选商品再点击结算',
+          icon: 'none',
+          duration: 500,
+        });
+      }
     },
     allSelect() {
       this.all_select = !this.all_select
@@ -154,10 +165,24 @@ export default {
         }
       }
       this.total = this.toDecimal2(this.total)
-    }
+    },
+    addCart(i) {
+      let data = {
+        goods_id: this.list[i].goods_id,
+        quantity: this.quantity[i],
+        product_id: this.list[i].product_id
+      }
+      this.$http.post({
+        data: data,
+        url: 'carts'
+      }).then((res) => {
+      }).catch((res) => {
+        console.log('catch', res)
+      })
+    },
   },
-  watch: {　　
-    select: {　　　　
+  watch: {
+    select: {
       handler(new_value, old_value) {
         let f = true
         let t = false
@@ -171,7 +196,7 @@ export default {
           }
         }
         if ((f == true) && (t == true)) {
-           this.all_select = true;
+          this.all_select = true;
         } else {
           this.all_select = false;
         }
