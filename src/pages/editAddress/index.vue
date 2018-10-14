@@ -94,7 +94,7 @@ export default {
     },
     submit() {
       this.$http.post({
-        url: 'user_address',
+        url: 'consignee',
         data: {
           id: this.id,
           consignee: this.consignee,

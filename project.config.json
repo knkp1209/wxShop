@@ -29,7 +29,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 5,
+			"current": 6,
 			"list": [
 				{
 					"id": -1,
@@ -64,7 +64,14 @@
 				{
 					"id": -1,
 					"name": "收货地址编辑",
-					"pathName": "pages/editAddress/main"
+					"pathName": "pages/editAddress/main",
+					"query": ""
+				},
+				{
+					"id": 6,
+					"name": "支付状态",
+					"pathName": "pages/payResult/main",
+					"query": "status=0"
 				}
 			]
 		}

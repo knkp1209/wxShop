@@ -246,14 +246,10 @@ export default {
       }
       let data = [{
         goods_id: this.goods.id,
-        url: this.goods.url,
-        goods_name: this.goods.name,
-        sell_price: this.goods.sell_price,
-        spec: this.spec,
         quantity: this.quantity,
-        stock: this.stock
+        product_id: this.product_id
       }]
-      this.$to.n('../pay/main?carts=' + JSON.stringify(data))
+      this.$to.n('../pay/main?goods_list=' + JSON.stringify(data))
     },
     goodsInit() {
       this.goods = {}

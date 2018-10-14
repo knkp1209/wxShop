@@ -54,7 +54,7 @@ export default {
         method: 'POST',
         success: function (res) {
           if (res.statusCode >= 400) {
-            reject()
+            reject(res)
           }
           resolve(res)
         },

@@ -14,7 +14,7 @@
               {{goods.goods_name}}
             </span>
             <div class="goods_spec">
-              <span v-for="(item,j) in goods.spec" :key="j">{{item}}</span>
+              <span v-for="(item,j) in goods.spec" :key="j">{{j}}:{{item}}</span>
             </div>
             <div class="price-quantity">
               <div class="price">
@@ -135,14 +135,23 @@ export default {
       return s;
     },
     toPay() {
-      let carts = []
+      let goods_list = []
+      let goods = {}
+      let temp = {}
       for (let i in this.select) {
         if (this.select[i] == true) {
-          carts.push(this.list[i])
+          temp = this.list[i]
+          goods = {
+            id: temp.id,
+            goods_id: temp.goods_id,
+            product_id: temp.product_id,
+            quantity: temp.quantity
+          }
+          goods_list.push(goods)
         }
       }
-      if (carts.length > 0) {
-        this.$to.n('../pay/main?carts=' + JSON.stringify(carts))
+      if (goods_list.length > 0) {
+        this.$to.n('../pay/main?goods_list=' + JSON.stringify(goods_list))
       } else {
         wx.showToast({
           title: '请勾选商品再点击结算',
