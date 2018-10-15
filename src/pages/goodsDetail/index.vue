@@ -1,35 +1,59 @@
 <template>
-  <div>
-    <swiper :indicator-dots="indicatorDots" :autoplay="autoplay" :interval="interval" :duration="duration">
-      <swiper-item v-for="(banner,i) in goods.banners" :key="i">
-        <image :src="banner.url" :data-src="banner.url" @click="previewImage"></image>
-      </swiper-item>
-    </swiper>
-    <div class="detail">
+  <div class="goods_detail">
+    <div class="main">
+      <swiper :indicator-dots="indicatorDots" :autoplay="autoplay" :interval="interval" :duration="duration">
+        <swiper-item v-for="(banner,i) in goods.banners" :key="i">
+          <image :src="banner.url" :data-src="banner.url" @click="previewImage"></image>
+        </swiper-item>
+      </swiper>
       <span class="title">{{goods.name}}</span>
       <div class="price">
         <span class="sell">￥{{goods.sell_price}}</span>
         <span class="original">￥{{goods.price}}</span>
       </div>
+      <div class="mark">
+        <i v-for="(item,i) in mark" :key="i" :class="[(i % 2) == 0 ? 'even' : 'odd']" >{{item}}</i>
+      </div>
+      <div class="promise" v-if="promise.length > 0">
+        <span>商品承诺：</span>
+        <i v-for="(item,i) in promise" :key="i" >{{item}}</i>
+      </div>
+      <div class="toNav">
+        <span @click="toNav(0)" :class="[nav == 0 ? 'active' : '']">商品介绍</span>
+        <span @click="toNav(1)" :class="[nav == 1 ? 'active' : '']">商品参数</span>
+      </div>
+      <div v-show="nav == 0" class="detail">
+        <rich-text :nodes="goods.detail" bindtap="tap"></rich-text>
+      </div>
+      <div v-show="nav == 1" class="param">
+        <div v-for="(item,i) in param" :key="i">
+          <span>{{item.name}}：</span>
+          <span>{{item.value}}</span>
+        </div>
+      </div>
+      <!-- 底部悬浮栏 -->
     </div>
-    <span class="title">商品详情</span>
-    <rich-text :nodes="goods.detail" bindtap="tap"></rich-text>
-    <!-- 底部悬浮栏 -->
-    <div class="detail-nav">
-      <button class="button_none" @click="toCart">
-        <image src="/static/image/cart.png" />
-      </button>
-      <block v-if="logged">
-        <button class="button_none" @click="love">
-          <image :src="[ goods.collection ? '/static/image/love_selected.png':'/static/image/love.png']" />
+    <div class="footer">
+      <div>
+        <button @click="toCart">
+          <image src="/static/image/cart.png" />
         </button>
+      </div>
+      <block v-if="logged">
+        <div>
+          <button @click="love">
+            <image :src="[ goods.collection ? '/static/image/love_selected.png':'/static/image/love.png']" />
+          </button>
+        </div>
         <button class="button-green" @click="pre('addCart')">加入购物车</button>
         <button class="button-red" @click="pre('buy')">立即购买</button>
       </block>
       <block v-else>
-        <button class="button_none" @getuserinfo="(e) => checkLogin(e,'love')" open-type="getUserInfo" lang="zh_CN">
-          <image :src="[ goods.collection ? '/static/image/love_selected.png':'/static/image/love.png']" />
-        </button>
+        <div>
+          <button @getuserinfo="(e) => checkLogin(e,'love')" open-type="getUserInfo" lang="zh_CN">
+            <image :src="[ goods.collection ? '/static/image/love_selected.png':'/static/image/love.png']" />
+          </button>
+        </div>
         <button class="button-green" @getuserinfo="(e) => checkLogin(e,'addCart')" open-type="getUserInfo" lang="zh_CN">加入购物车</button>
         <button class="button-red" @getuserinfo="(e) => checkLogin(e,'buy')" open-type="getUserInfo" lang="zh_CN">立即购买</button>
       </block>
@@ -90,6 +114,10 @@ export default {
       autoplay: true, //是否自动切换
       interval: 3000, //自动切换时间间隔,3s
       duration: 1000, //  滑动动画时长1s
+      nav: 0,
+      mark: [],
+      promise: [],
+      param:[],
     }
   },
   methods: {
@@ -140,6 +168,15 @@ export default {
       } else {
         this.specs = JSON.parse(data.specs)
         this.specs_length = Object.keys(this.specs).length
+      }
+      if (data.mark != '') {
+        this.mark = data.mark.split(',')
+      }
+      if (data.promise != '') {
+        this.promise = data.promise.split(',')
+      }
+      if (data.param != '') {
+        this.param = JSON.parse(data.param)
       }
     },
     radioChange(e, name, i) {
@@ -260,6 +297,10 @@ export default {
       this.post_spec = {}
       this.logged = wx.getStorageSync('logged')
       this.product_id = false
+      this.nav = 0
+      this.mark = []
+      this.promise = []
+      this.param = []
     },
     dec() {
       this.quantity = (Math.floor(this.quantity * 100) - 100) / 100
@@ -271,6 +312,9 @@ export default {
       } else {
         this.quantity = temp
       }
+    },
+    toNav(status) {
+      this.nav = status
     }
   },
   onPullDownRefresh() {
@@ -287,6 +331,7 @@ export default {
 
 </script>
 <style scoped>
+/* sku start */
 .choose_sku {
   display: flex !important;
   flex-direction: column;
@@ -386,9 +431,37 @@ export default {
   background: #FF0000;
 }
 
-/* 直接设置swiper属性 */
+/* sku start */
 
+
+.goods_detail {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: fixed;
+  flex-direction: column;
+  font-size: 30rpx;
+}
+
+
+
+.main {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  flex-direction: column;
+  font-size: 30rpx;
+  overflow-x: hidden;
+}
+
+.main>div {
+  margin: 10rpx 0rpx;
+  min-height: 40rpx;
+}
+
+/* 直接设置swiper属性 */
 swiper {
+  width: 100%;
   height: 500rpx;
 }
 
@@ -397,67 +470,138 @@ swiper-item image {
   height: 100%;
 }
 
-.detail {
+.main .title {
+  margin: 0rpx 10rpx;
+  font-size: 35rpx;
+}
+
+.main .price {
+  margin: 0rpx 10rpx;
+  font-size: 35rpx;
+  overflow: visible;
+}
+
+.main .mark {
   display: flex;
-  flex-direction: column;
-  margin-top: 15rpx;
-  margin-bottom: 0rpx;
+  margin-left: 20rpx;
 }
 
-.detail .title {
-  font-size: 40rpx;
-  margin: 10rpx;
-  color: #000000;
-  text-align: justify;
+.main .mark i {
+  height: 60rpx;
+  line-height: 58rpx;
+  padding: 0 10rpx;
+  margin-right: 10rpx;
+  border: 1rpx solid;
+  border-radius: 10rpx;
 }
 
-.detail .price {
-  color: red;
-  font-size: 40rpx;
-  margin: 10rpx;
+.main .odd {
+  background-color: rgba(230, 162, 60, .1);
+  border-color: rgba(230, 162, 60, .2);
+  color: #e6a23c;
 }
 
-.detail-nav {
+.main .even {
+  background-color: hsla(0, 87%, 69%, .1);
+  border-color: hsla(0, 87%, 69%, .2);
+  color: #f56c6c;
+}
+
+.main .promise {
   display: flex;
-  flex-direction: row;
+  margin-left: 20rpx;
   align-items: center;
-  background-color: #fff;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  z-index: 1;
-  width: 100%;
+}
+
+.main .promise i {
+  height: 40rpx;
+  line-height: 38rpx;
+  padding: 0 10rpx;
+  margin-right: 10rpx;
+  border: 1rpx solid;
+  border-radius: 10rpx;
+  color: #409eff;
+  border-radius: 4px;
+  box-sizing: border-box;
+  border: 1px solid rgba(64, 158, 255, .2);
+}
+
+.main .toNav {
+  height: 50rpx;
+  display: flex;
+  margin: 10rpx 0;
+  border-bottom: 1rpx solid #DCDCDC;
+  justify-content: space-around;
+}
+
+.main .toNav>span {
+  text-align: center;
+}
+
+.main .toNav .active {
+  border-bottom: 6rpx solid #FF0000;
+}
+
+.main .detail {
+  flex: 1;
+}
+
+.main .param {
+  flex: 1;
+  padding-left: 15rpx;
+}
+
+.main .param span {
+  padding-left: 5rpx 10rpx;
+}
+
+.footer {
+  background: #FFFFFF;
   height: 100rpx;
-  border-top: 1rpx solid #DCDCDC;
+  display: flex;
 }
 
-.button-green {
+.footer>div {
+  display: flex;
+  width: 118rpx;
+  border: 1rpx solid #DCDCDC;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer>div>button {
+  width: 60rpx;
+  height: 60rpx;
+  background: none;
+}
+
+.footer>div>button:after {
+  border: none;
+}
+
+.footer image {
+  width: 100%;
+  height: 100%;
+}
+
+.footer .button-green {
   background-color: #4caf50;
-  /* Green */
 }
 
-.button-red {
+.footer .button-red {
   background-color: #f44336;
-  /* 红色 */
 }
 
-button {
+.footer button {
+  flex: 2;
   color: white;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 30rpx;
   border-radius: 0rpx;
-  width: 50%;
   height: 100rpx;
   line-height: 100rpx;
-}
-
-.detail-nav image {
-  width: 60rpx;
-  height: 60rpx;
-  /*margin: 0rpx 25rpx;*/
-  /*background: red;*/
 }
 
 </style>

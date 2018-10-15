@@ -108,11 +108,12 @@ export default {
   padding-left: 10rpx;
 }
 
-.price .sell {
+.sell {
   color: #f04827;
 }
 
-.price .original {
+.original {
+  padding-left: 20rpx;
   color: #a79d9d;
   text-decoration: line-through;
 }
