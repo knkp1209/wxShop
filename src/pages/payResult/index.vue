@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     toOrder() {
-      this.$to.s('../home/main')
+      this.$to.n('../order/main?status=undefined')
     }
   },
   onLoad(obj) {

@@ -1,10 +1,6 @@
 import config from './config'
 
 export default (e, vue) => {
-  wx.showLoading({
-    title: '加载中',
-    mask: true
-  })
   if (e.target.encryptedData == undefined) {
     wx.showModal({
       title: '请重新授权',
@@ -13,6 +9,10 @@ export default (e, vue) => {
     console.log('未登录')
     return Promise.reject();
   }
+  wx.showLoading({
+    title: '登录中',
+    mask: true
+  })
   return new Promise((resolve, reject) => {
     wx.login({
       success(res) {

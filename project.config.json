@@ -29,7 +29,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 6,
+			"current": 7,
 			"list": [
 				{
 					"id": -1,
@@ -72,6 +72,18 @@
 					"name": "支付状态",
 					"pathName": "pages/payResult/main",
 					"query": "status=0"
+				},
+				{
+					"id": 7,
+					"name": "用户",
+					"pathName": "pages/user/main",
+					"query": "status=0"
+				},
+				{
+					"id": -1,
+					"name": "订单",
+					"pathName": "pages/order/main",
+					"query": ""
 				}
 			]
 		}

@@ -9,7 +9,9 @@
     "pages/pay/main",
     "pages/editAddress/main",
     "pages/addressList/main",
-    "pages/payResult/main"
+    "pages/payResult/main",
+    "pages/user/main",
+    "pages/order/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -42,7 +44,7 @@
         "selectedIconPath": "static/image/cart_selected.png"
       },
       {
-        "pagePath": "pages/category/main",
+        "pagePath": "pages/user/main",
         "text": "我的",
         "iconPath": "static/image/me.png",
         "selectedIconPath": "static/image/me_selected.png"
