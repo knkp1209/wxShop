@@ -427,8 +427,19 @@ export default {
 }
 
 .buy {
+  display: flex;
   height: 100rpx;
   background: #FF0000;
+}
+
+.buy>button:after {
+  border: none;
+}
+
+.buy button {
+  flex: 1;
+  border-radius: 0rpx;
+  color: #FFFFFF;
 }
 
 /* sku start */
@@ -573,6 +584,7 @@ swiper-item image {
   width: 60rpx;
   height: 60rpx;
   background: none;
+  border-radius: 0rpx;
 }
 
 .footer>div>button:after {
@@ -582,14 +594,6 @@ swiper-item image {
 .footer image {
   width: 100%;
   height: 100%;
-}
-
-.footer .button-green {
-  background-color: #4caf50;
-}
-
-.footer .button-red {
-  background-color: #f44336;
 }
 
 .footer button {
@@ -604,4 +608,11 @@ swiper-item image {
   line-height: 100rpx;
 }
 
+.button-green {
+  background-color: #4caf50;
+}
+
+.button-red {
+  background-color: #f44336;
+}
 </style>

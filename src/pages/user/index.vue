@@ -30,6 +30,16 @@
         <span>已取消</span>
       </div>
     </div>
+    <div class="set">
+      <div @click="clear">
+        <image src="/static/image/all_order.png" />
+        <span>清除缓存</span>
+      </div>
+      <button open-type="openSetting">
+        <image src="/static/image/all_order.png" />
+        <span>权限管理</span>
+      </button>
+    </div>
   </div>
 </template>
 <script>
@@ -63,6 +73,18 @@ export default {
       } else {
         this.$to.n('../order/main?status=' + status)
       }
+    },
+    clear() {
+      wx.showModal({
+        title: '清空缓存',
+        content: '清空缓存后需要重新登录',
+        confirmText: '清空',
+        success(res) {
+          if (res.confirm) {
+            wx.clearStorageSync()
+          }
+        }
+      })
     }
   },
   onLoad(obj) {
@@ -81,12 +103,31 @@ export default {
   font-family: "Microsoft YaHei", "Arial", "黑体", "宋体", sans-serif;
   background: #f6f7fb;
   padding-top: 10rpx;
+  font-size: 30rpx;
 }
 
 .user>div {
   margin: 0 15rpx 10rpx 15rpx;
   padding: 15rpx 0;
   background: #FFFFFF;
+}
+
+.user div div>span {
+  margin-top: 5rpx;
+}
+
+.user div>div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+}
+
+.user div image {
+  width: 80rpx;
+  height: 80rpx;
 }
 
 .user .info {
@@ -122,23 +163,44 @@ export default {
   display: flex;
 }
 
-.user .order div {
-  flex: 1;
+.user .set {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.user .set button {
+  background: #FFFFFF;
+  font-size: 30rpx;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   overflow: hidden;
+  padding: 0;
+  margin: 0;
+  margin-left: 10rpx;
 }
 
-.user .order div>image {
-  width: 80rpx;
-  height: 80rpx;
+.user .set div {
+  flex:none;
+  margin: 0 10rpx;
 }
 
-.user .order div>span {
+.user .set button>span {
   margin-top: 5rpx;
-  font-size: 30rpx;
+  height: 40rpx;
+  line-height: 40rpx;
 }
+
+.user .set>* {
+  flex: none;
+  margin: 0 30rpx;
+}
+
+.user .set button:after {
+  border: none;
+}
+
+
 
 </style>

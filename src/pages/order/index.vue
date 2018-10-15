@@ -101,8 +101,11 @@ export default {
           }
         })
       }).catch((res) => {
-        console.log('yang')
-        console.log(res)
+        wx.showToast({
+          title: res.data.msg,
+          icon: 'none',
+          duration: 1000,
+        });
       }).finally(() => {
         wx.hideLoading()
       })
@@ -143,6 +146,10 @@ export default {
   display: flex;
   flex-direction: column;
   font-family: "Microsoft YaHei", "Arial", "黑体", "宋体", sans-serif;
+}
+
+.order button:after {
+  border: none;
 }
 
 .order .header {

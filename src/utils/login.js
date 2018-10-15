@@ -18,7 +18,7 @@ export default (e, vue) => {
       success(res) {
         wx.request({
           url: config.host + 'wechat/login',
-          header: { 'x-api-key': config.key, 'token': vue.$store.state.token },
+          header: { 'x-api-key': config.key },
           data: {
             code: res.code,
             encryptedData: e.target.encryptedData,

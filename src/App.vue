@@ -25,7 +25,7 @@ export default {
 }
 
 /* Button Login Start */
-.button_none::after {
+.button_none:after {
   border: none;
 }
 .button_none{
