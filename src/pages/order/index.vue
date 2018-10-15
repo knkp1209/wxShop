@@ -106,8 +106,6 @@ export default {
           icon: 'none',
           duration: 1000,
         });
-      }).finally(() => {
-        wx.hideLoading()
       })
     },
     fetchOrder(status) {
