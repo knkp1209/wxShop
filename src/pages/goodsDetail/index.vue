@@ -269,6 +269,7 @@ export default {
           title: '添加成功',
           duration: 1000
         });
+        this.choose_sku = false
       }).catch((res) => {
         console.log('catch', res)
       })
