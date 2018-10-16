@@ -117,7 +117,8 @@ export default {
       nav: 0,
       mark: [],
       promise: [],
-      param:[],
+      param: [],
+      pre_click_num: 0, // 预备按钮点击次数
     }
   },
   methods: {
@@ -227,19 +228,22 @@ export default {
       })
     },
     pre(name) {
-      if (name == 'addCart') {
-        if (this.specs_length > 0) {
-          this.choose_sku = true
-        } else {
-          this.addCart()
-        }
-      } else if (name == 'buy') {
-        if (this.specs_length > 0) {
-          this.choose_sku = true
-        } else {
-          this.buy()
-        }
+      if (this.specs_length > 0) {
+        this.choose_sku = true
+        this.pre_click_num++;
+        return false
       }
+      if (this.pre_click_num == 0) {
+        this.choose_sku = true
+        this.pre_click_num++;
+        return false;
+      }
+      if (name == 'addCart') {
+        this.addCart()
+      } else if (name == 'buy') {
+        this.buy()
+      }
+      
     },
     addCart() {
       if (this.choose_sku == true) {
@@ -297,10 +301,12 @@ export default {
       this.post_spec = {}
       this.logged = wx.getStorageSync('logged')
       this.product_id = false
+      this.quantity = 1
       this.nav = 0
       this.mark = []
       this.promise = []
       this.param = []
+      this.pre_click_num = 0
     },
     dec() {
       this.quantity = (Math.floor(this.quantity * 100) - 100) / 100
@@ -615,4 +621,5 @@ swiper-item image {
 .button-red {
   background-color: #f44336;
 }
+
 </style>
